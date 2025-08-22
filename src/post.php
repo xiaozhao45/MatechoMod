@@ -60,8 +60,33 @@ $this->need('header.php');
                         echo "<a href=\"" . $tag["permalink"] . "\">" . $tag["name"] . "</a>";
                     } ?>
                 </div>
-            <?php }
+            <?php } ?>
+
+            <?php
+            $db = Typecho_Db::get();
+            $prefix = $db->getPrefix();
+            $likesRow = $db->fetchRow($db->select('str_value')->from($prefix . 'fields')->where('cid = ? AND name = ?', $this->cid, 'likes'));
+            $likesCount = $likesRow ? $likesRow['str_value'] : '0';
             ?>
+
+            <!-- Like Button Start -->
+            <div class="mt-8 flex justify-center">
+                <button id="matecho-like-button"
+                    class="relative group w-16 h-16 rounded-full flex items-center justify-center transition-colors duration-300 focus:outline-none"
+                    data-cid="<?php $this->cid(); ?>"
+                    aria-label="点赞">
+                    <svg class="like-heart w-8 h-8" viewBox="0 0 24 24">
+                        <path class="like-heart-path" fill="none" stroke="currentColor" stroke-width="2"
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    <span id="matecho-like-count"
+                        class="absolute text-sm font-bold transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                        <?php echo $likesCount; ?>
+                    </span>
+                </button>
+            </div>
+            <!-- Like Button End -->
+
             <mdui-divider class="mt-4 mb-4"></mdui-divider>
             <div class="mt-2">
                 <?php $comments = $this->comments(); ?>

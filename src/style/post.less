@@ -313,3 +313,99 @@ pre.output {
     caret-color: rgb(255 255 255 / 70%);
   }
 }
+
+// Like Button Styles
+#matecho-like-button {
+  background-color: #f0f0f0;
+  cursor: pointer;
+
+  .like-heart {
+    // Make the heart icon itself not clickable to avoid issues with the button click event
+    pointer-events: none; 
+  }
+
+  .like-heart-path {
+    color: #888;
+    transition: fill 0.3s, color 0.3s;
+  }
+
+  #matecho-like-count {
+    color: #333;
+    // Hide the count, show it when the button is hovered/focused
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  &:hover #matecho-like-count,
+  &:focus #matecho-like-count {
+    opacity: 1;
+  }
+
+  &:hover .like-heart-path,
+  &:focus .like-heart-path {
+     color: #333;
+  }
+
+  // Liked state
+  &.liked {
+    .like-heart-path {
+      fill: #ef4444; // red-500
+      color: #ef4444;
+    }
+    #matecho-like-count {
+      color: #ef4444;
+      opacity: 1; // Always show count when liked
+    }
+  }
+
+  // Animation
+  &.animating .like-heart {
+    animation: heart-pop 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Dark mode styles
+@media (prefers-color-scheme: dark) {
+  #matecho-like-button {
+    background-color: rgb(var(--mdui-color-surface-container-high));
+
+    .like-heart-path {
+      color: rgb(var(--mdui-color-on-surface-variant));
+    }
+
+    #matecho-like-count {
+      color: rgb(var(--mdui-color-on-surface));
+    }
+
+    &:hover {
+      background-color: rgb(var(--mdui-color-surface-container-highest));
+    }
+    
+    &:hover .like-heart-path,
+    &:focus .like-heart-path {
+        color: rgb(var(--mdui-color-on-surface));
+    }
+
+    &.liked {
+      .like-heart-path {
+        fill: #f87171; // red-400
+        color: #f87171;
+      }
+      #matecho-like-count {
+        color: #f87171;
+      }
+    }
+  }
+}

@@ -28,6 +28,66 @@ function initFancybox(container: HTMLElement) {
   ]);
 }
 
+function initLikeButton() {
+  const likeButton = document.getElementById('matecho-like-button');
+  if (!likeButton) {
+    return;
+  }
+
+  const likeCountSpan = document.getElementById('matecho-like-count');
+  const cid = likeButton.dataset.cid;
+  if (!cid) return;
+
+  const likedPosts = JSON.parse(localStorage.getItem('matecho_liked_posts') || '[]');
+
+  if (likedPosts.includes(cid)) {
+    likeButton.classList.add('liked');
+  }
+
+  likeButton.addEventListener('click', () => {
+    if (likeButton.classList.contains('liked') || likeButton.classList.contains('animating')) {
+      return;
+    }
+
+    const currentLikedPosts = JSON.parse(localStorage.getItem('matecho_liked_posts') || '[]');
+    if (currentLikedPosts.includes(cid)) {
+        likeButton.classList.add('liked');
+        return;
+    }
+
+    likeButton.classList.add('animating');
+
+    const formData = new FormData();
+    formData.append('cid', cid);
+
+    fetch('/like.php', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          if(likeCountSpan) {
+            likeCountSpan.textContent = data.likes;
+          }
+          likeButton.classList.add('liked');
+          
+          const updatedLikedPosts = [...currentLikedPosts, cid];
+          localStorage.setItem('matecho_liked_posts', JSON.stringify(updatedLikedPosts));
+        }
+      })
+      .catch(error => {
+        console.error('Error liking post:', error);
+      })
+      .finally(() => {
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          likeButton.classList.remove('animating');
+        }, 600); // Corresponds to animation duration in CSS
+      });
+  });
+}
+
 export function initKaTeX(container: HTMLElement) {
   return Promise.all([
     import("katex/dist/katex.css"),
@@ -35,7 +95,7 @@ export function initKaTeX(container: HTMLElement) {
       ({ default: renderMathInElement }) => {
         renderMathInElement(container, {
           delimiters: [
-            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: true },
             { left: "$", right: "$", display: false }
           ]
         });
@@ -79,6 +139,7 @@ function countMoney(str: string) {
 
 export function init(el: HTMLElement) {
   initComments(el);
+  initLikeButton();
   const article = el.querySelector<HTMLElement>("article.mdui-prose");
   const { Highlighter, FancyBox, KaTeX, Mermaid } = window.__MATECHO_OPTIONS__;
   if (article) {
